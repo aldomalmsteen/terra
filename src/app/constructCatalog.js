@@ -54,6 +54,8 @@ export const LOCAL_ONLY_LAYER_METADATA = Object.freeze([
   // Voice search results belong to this session, like a receiver to this machine.
   Object.freeze({ id: 'osm-places', disposition: 'local-only' }),
   Object.freeze({ id: 'paraguay-infraestructura', disposition: 'local-only' }),
+  Object.freeze({ id: 'paraguay-energia', disposition: 'local-only' }),
+  Object.freeze({ id: 'paraguay-aerodromos', disposition: 'local-only' }),
 ]);
 
 /** Serialization metadata for every layer the application catalog constructs. */

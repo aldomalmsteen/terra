@@ -58,5 +58,39 @@ export function createInfrastructureLayers(services) {
     services,
   );
 
-  return [datacenters, dams, paraguay];
+  const energiaUrl = INFRASTRUCTURE_DATA_URLS['paraguay-energia'];
+  const paraguayEnergia = createLocalGeoJsonLayer(
+    {
+      id: 'paraguay-energia',
+      url: energiaUrl,
+      name: 'Paraguay: Red Eléctrica 500 kV y ANDE',
+      color: '#ffea00',
+      icon: '⚡',
+      source: 'ANDE / Itaipú / EBY',
+      osmDerived: false,
+      labels: true,
+      labelMax: 900,
+      labelGridPx: 64,
+    },
+    services,
+  );
+
+  const aerodromosUrl = INFRASTRUCTURE_DATA_URLS['paraguay-aerodromos'];
+  const paraguayAerodromos = createLocalGeoJsonLayer(
+    {
+      id: 'paraguay-aerodromos',
+      url: aerodromosUrl,
+      name: 'Paraguay: Aeródromos y Pistas',
+      color: '#ff9100',
+      icon: '🛫',
+      source: 'DINAC',
+      osmDerived: false,
+      labels: true,
+      labelMax: 900,
+      labelGridPx: 64,
+    },
+    services,
+  );
+
+  return [datacenters, dams, paraguay, paraguayEnergia, paraguayAerodromos];
 }

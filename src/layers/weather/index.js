@@ -154,7 +154,7 @@ export function createWeatherLayer({
   } catch (cause) {
     console.warn('[weather] source name unavailable:', cause);
   }
-  let product = radar ? 'radar' : lightning ? 'lightning' : 'clouds-regional';
+  let product = radar ? 'radar' : lightning ? 'lightning' : 'clouds';
   let opacity = 'strong';
   let infrared = 100;
   let viewer = null,

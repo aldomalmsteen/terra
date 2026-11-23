@@ -83,6 +83,16 @@ const KINDS = Object.freeze({
     icon: 'anchor',
     headline: ['level', 'variation', 'calado'],
   },
+  'paraguay-energia': {
+    kind: msg('subestación'),
+    icon: 'bolt',
+    headline: ['tension', 'longitud', 'operator'],
+  },
+  'paraguay-aerodromos': {
+    kind: msg('aeródromo'),
+    icon: 'flight',
+    headline: ['codigo_icao', 'pista', 'ciudad'],
+  },
   'osm-places': { kind: msg('place'), icon: 'location_on' },
   transit: {
     kind: msg('vehicle'),

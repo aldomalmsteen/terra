@@ -22,6 +22,18 @@ export const INFRASTRUCTURE_DATA_URLS = Object.freeze({
       import.meta.url,
     ).href;
   },
+  get 'paraguay-energia'() {
+    return new URL(
+      '../data/local_data/paraguay/energia.geojsonl',
+      import.meta.url,
+    ).href;
+  },
+  get 'paraguay-aerodromos'() {
+    return new URL(
+      '../data/local_data/paraguay/aerodromos.geojsonl',
+      import.meta.url,
+    ).href;
+  },
 });
 
 /** Parse GeoJSON Lines: one Feature per non-empty line. */
@@ -37,6 +49,8 @@ export function layerTitle(layerId) {
   if (layerId === 'local-datacenters') return 'Datacenter';
   if (layerId === 'local-dams') return 'Dam';
   if (layerId === 'paraguay-infraestructura') return 'Paraguay';
+  if (layerId === 'paraguay-energia') return 'Energía';
+  if (layerId === 'paraguay-aerodromos') return 'Aeródromo';
   return 'Feature';
 }
 

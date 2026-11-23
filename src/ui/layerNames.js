@@ -28,6 +28,8 @@ export const LAYER_NAME_KEYS = Object.freeze({
   'local-datacenters': msg('Datacenters'),
   'local-dams': msg('Dams'),
   'paraguay-infraestructura': msg('Paraguay: Hidrovía y Puertos'),
+  'paraguay-energia': msg('Paraguay: Red Eléctrica 500 kV y ANDE'),
+  'paraguay-aerodromos': msg('Paraguay: Aeródromos y Pistas (DINAC)'),
   'telegeography-submarine-cables': msg('Submarine Cables'),
   'local-firms': msg('FIRMS Active Fires'),
   'local-adsb': msg('Local ADS-B'),
