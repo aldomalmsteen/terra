@@ -286,7 +286,7 @@ onMounted(() => {
       mode.value !== 'closed' ||
       document.body.classList.contains('stories-mode'),
   });
-  popOpen.value = !readPopSeen();
+  popOpen.value = false;
   watchCredit();
 });
 onBeforeUnmount(() => {

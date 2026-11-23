@@ -6,9 +6,9 @@ import { cameraOf } from './render/rendererOf.js';
  * down, centred where Cesium's default view rectangle is.
  */
 export const START_VIEW = Object.freeze({
-  lon: -82.5,
-  lat: 35,
-  height: 23000000,
+  lon: -57.635,
+  lat: -25.295,
+  height: 45000,
 });
 
 /**

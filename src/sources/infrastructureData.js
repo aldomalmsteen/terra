@@ -16,6 +16,12 @@ export const INFRASTRUCTURE_DATA_URLS = Object.freeze({
     return new URL('../data/local_data/dams/dams.geojsonl', import.meta.url)
       .href;
   },
+  get 'paraguay-infraestructura'() {
+    return new URL(
+      '../data/local_data/paraguay/paraguay.geojsonl',
+      import.meta.url,
+    ).href;
+  },
 });
 
 /** Parse GeoJSON Lines: one Feature per non-empty line. */
@@ -30,6 +36,7 @@ export function parseGeojsonLines(text) {
 export function layerTitle(layerId) {
   if (layerId === 'local-datacenters') return 'Datacenter';
   if (layerId === 'local-dams') return 'Dam';
+  if (layerId === 'paraguay-infraestructura') return 'Paraguay';
   return 'Feature';
 }
 

@@ -39,6 +39,9 @@ export function createApplicationData({
     layer.attachMapStackController?.(mapStackController);
   // Restoration starts only after the caller's complete registry is sealed.
   dataManager.finalizeRegistrations(catalog.metadata);
+  setTimeout(() => {
+    dataManager.setEnabled('paraguay-infraestructura', true).catch(() => {});
+  }, 500);
   if (allowQaRegistration) {
     window.__gevQaRegisterLayer = (targetManager, layerModule) => {
       if (targetManager !== dataManager)

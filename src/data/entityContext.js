@@ -78,6 +78,11 @@ const KINDS = Object.freeze({
     icon: 'factory',
     headline: ['capacity'],
   },
+  'paraguay-infraestructura': {
+    kind: msg('station'),
+    icon: 'anchor',
+    headline: ['level', 'variation', 'calado'],
+  },
   'osm-places': { kind: msg('place'), icon: 'location_on' },
   transit: {
     kind: msg('vehicle'),

@@ -41,5 +41,22 @@ export function createInfrastructureLayers(services) {
     services,
   );
 
-  return [datacenters, dams];
+  const paraguayUrl = INFRASTRUCTURE_DATA_URLS['paraguay-infraestructura'];
+  const paraguay = createLocalGeoJsonLayer(
+    {
+      id: 'paraguay-infraestructura',
+      url: paraguayUrl,
+      name: 'Paraguay: Hidrovía y Puertos',
+      color: '#00e5ff',
+      icon: '⚓',
+      source: 'DMH / ANNP / MADES',
+      osmDerived: false,
+      labels: true,
+      labelMax: 900,
+      labelGridPx: 64,
+    },
+    services,
+  );
+
+  return [datacenters, dams, paraguay];
 }
