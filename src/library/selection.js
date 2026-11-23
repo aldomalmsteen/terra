@@ -78,13 +78,41 @@ export function normalizeLibrarySelection(raw, allowed) {
   return { added, on };
 }
 
-/** Read this browser's selection; an unreadable store reads as empty. */
+export const DEFAULT_LIBRARY_ADDED = Object.freeze([
+  'jrc-surface-water',
+  'nasa-black-marble',
+  'gbif-occurrence-density',
+  'gdacs-disaster-alerts',
+  'nasa-eonet-events',
+  'mapterhorn-terrain',
+  'wri-global-power-plants',
+  'macrostrat-geology',
+  'imf-portwatch-disruptions',
+]);
+
+/** Read this browser's selection; an unreadable store reads as default library datasets. */
 export function readStoredLibrarySelection(storage, allowed) {
   try {
     const text = storage?.getItem?.(LIBRARY_STORAGE_KEY);
-    return normalizeLibrarySelection(text ? JSON.parse(text) : null, allowed);
+    if (!text) {
+      return normalizeLibrarySelection(
+        { added: DEFAULT_LIBRARY_ADDED, on: [] },
+        allowed,
+      );
+    }
+    const parsed = JSON.parse(text);
+    const mergedAdded = Array.from(
+      new Set([...(parsed?.added || []), ...DEFAULT_LIBRARY_ADDED]),
+    );
+    return normalizeLibrarySelection(
+      { added: mergedAdded, on: parsed?.on || [] },
+      allowed,
+    );
   } catch {
-    return { added: [], on: [] };
+    return normalizeLibrarySelection(
+      { added: DEFAULT_LIBRARY_ADDED, on: [] },
+      allowed,
+    );
   }
 }
 
