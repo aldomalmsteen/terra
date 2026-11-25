@@ -93,6 +93,11 @@ const KINDS = Object.freeze({
     icon: 'flight',
     headline: ['codigo_icao', 'pista', 'ciudad'],
   },
+  'aumenta-flota': {
+    kind: msg('vehículo'),
+    icon: 'local_shipping',
+    headline: ['velocidad', 'estado', 'bateria', 'rumbo'],
+  },
   'osm-places': { kind: msg('place'), icon: 'location_on' },
   transit: {
     kind: msg('vehicle'),

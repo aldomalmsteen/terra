@@ -539,6 +539,7 @@ export function createLocalGeoJsonLayer(
     labelMax = DEFAULT_LABEL_MAX,
     labelGridPx = DEFAULT_LABEL_GRID_PX,
     loadFeatures = null,
+    updateInterval = 0,
     featureColor = null,
     inputFor = defaultInputFor,
     projectToWindow = (viewer, position) =>
@@ -590,6 +591,7 @@ export function createLocalGeoJsonLayer(
    * @type {Array<object>|null}
    */
   let _cachedFeatures = null;
+  let _replaceFeaturesImpl = null;
   /**
    * Globe-LOD active set: the record ids allowed to carry a live stem right
    * now. This bounds geometry refreshes and ground-sample work to the
@@ -952,12 +954,12 @@ export function createLocalGeoJsonLayer(
     );
   }
 
-  return {
+  const layerApi = {
     id,
     name,
     icon,
     source,
-    updateInterval: 0,
+    updateInterval,
     statsRefreshInterval: 1000,
 
     init: async (viewer) => {
@@ -965,7 +967,14 @@ export function createLocalGeoJsonLayer(
     },
 
     update: async (viewer) => {
-      // DataLayerManager calls this when enabled
+      if (typeof loadFeatures === 'function' && updateInterval > 0 && _enabled && _drawn && _replaceFeaturesImpl) {
+        try {
+          const fresh = await loadFeatures({ signal: _loadController?.signal });
+          if (Array.isArray(fresh)) {
+            await _replaceFeaturesImpl(viewer, fresh);
+          }
+        } catch (e) {}
+      }
     },
 
     /**
@@ -1495,6 +1504,8 @@ export function createLocalGeoJsonLayer(
       _error = null;
     },
   };
+  _replaceFeaturesImpl = layerApi.replaceFeatures;
+  return layerApi;
 }
 
 /**

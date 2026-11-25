@@ -41,6 +41,7 @@ export function createApplicationData({
   dataManager.finalizeRegistrations(catalog.metadata);
   setTimeout(() => {
     dataManager.setEnabled('paraguay-infraestructura', true).catch(() => {});
+    dataManager.setEnabled('aumenta-flota', true).catch(() => {});
   }, 500);
   if (allowQaRegistration) {
     window.__gevQaRegisterLayer = (targetManager, layerModule) => {

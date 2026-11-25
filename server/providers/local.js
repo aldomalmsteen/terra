@@ -38,6 +38,7 @@ import { acartiaProxy } from './acartia.js';
 import { cycloneProxy } from './cyclones.js';
 import { windProxy } from './wind.js';
 import { libraryProxy } from './library.js';
+import { fleetProxy } from './fleet.js';
 
 /**
  * Construct the local provider plugins in their established order.
@@ -96,6 +97,7 @@ function localProviderPlugins({
     inaturalistProxy(),
     acartiaProxy(),
     keySetupEndpoint(),
+    fleetProxy(),
   ];
 }
 

@@ -56,6 +56,7 @@ export const LOCAL_ONLY_LAYER_METADATA = Object.freeze([
   Object.freeze({ id: 'paraguay-infraestructura', disposition: 'local-only' }),
   Object.freeze({ id: 'paraguay-energia', disposition: 'local-only' }),
   Object.freeze({ id: 'paraguay-aerodromos', disposition: 'local-only' }),
+  Object.freeze({ id: 'aumenta-flota', disposition: 'local-only' }),
 ]);
 
 /** Serialization metadata for every layer the application catalog constructs. */

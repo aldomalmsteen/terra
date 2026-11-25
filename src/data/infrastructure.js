@@ -92,5 +92,32 @@ export function createInfrastructureLayers(services) {
     services,
   );
 
-  return [datacenters, dams, paraguay, paraguayEnergia, paraguayAerodromos];
+  const flota = createLocalGeoJsonLayer(
+    {
+      id: 'aumenta-flota',
+      url: '/api/fleet',
+      name: 'Flota Aumenta (GPS en Vivo)',
+      color: '#00e5ff',
+      icon: '🚛',
+      source: 'Telemetría Móvil',
+      osmDerived: false,
+      labels: true,
+      labelMax: 900,
+      labelGridPx: 48,
+      updateInterval: 3000,
+      loadFeatures: async () => {
+        try {
+          const res = await fetch('/api/fleet');
+          if (res.ok) {
+            const data = await res.json();
+            return data.features || [];
+          }
+        } catch {}
+        return [];
+      },
+    },
+    services,
+  );
+
+  return [datacenters, dams, paraguay, paraguayEnergia, paraguayAerodromos, flota];
 }
