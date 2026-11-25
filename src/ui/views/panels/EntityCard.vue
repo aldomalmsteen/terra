@@ -42,6 +42,32 @@ const shownTitle = computed(() => {
   }
 });
 
+async function stepFleet(direction) {
+  try {
+    const res = await fetch('/api/fleet');
+    if (!res.ok) return;
+    const data = await res.json();
+    const points = (data.features || []).filter((f) => f.geometry?.type === 'Point');
+    if (points.length <= 1) return;
+    const currentId = card.value?.identity?.id;
+    const idx = points.findIndex((p) => p.id === currentId);
+    const nextIdx = (idx + direction + points.length) % points.length;
+    const nextVehicle = points[nextIdx];
+    if (nextVehicle) {
+      store.select(
+        {
+          layerId: 'aumenta-flota',
+          id: nextVehicle.id,
+          label: nextVehicle.properties?.name || nextVehicle.id,
+          lat: nextVehicle.geometry.coordinates[1],
+          lon: nextVehicle.geometry.coordinates[0],
+        },
+        { fly: true },
+      );
+    }
+  } catch {}
+}
+
 function ago(ms) {
   const seconds = Math.round(ms / 1000);
   if (seconds < 60) return t('{n} s ago', { n: seconds });
@@ -415,6 +441,17 @@ watch(
       <div class="entity-card__meta">
         <span v-if="status" class="entity-card__status" :class="`entity-card__status--${status.tone}`">{{ status.text }}</span>
         <span v-if="position" class="entity-card__where">{{ position }}</span>
+      </div>
+
+      <!-- Fleet Stepper -->
+      <div v-if="card.layerId === 'aumenta-flota'" class="entity-card__fleet-stepper" role="group" aria-label="Navegar Flota">
+        <UiButton class="tbtn fleet-nav-btn" @click="stepFleet(-1)" :title="t('Vehículo anterior')">
+          <UiIcon name="chevron_left" :size="null" /> {{ t('Anterior') }}
+        </UiButton>
+        <span class="fleet-stepper-label">🚛 {{ shownTitle }}</span>
+        <UiButton class="tbtn fleet-nav-btn" @click="stepFleet(1)" :title="t('Siguiente vehículo')">
+          {{ t('Siguiente') }} <UiIcon name="chevron_right" :size="null" />
+        </UiButton>
       </div>
 
       <div v-if="card.warnings?.length" class="entity-card__warning" role="alert">

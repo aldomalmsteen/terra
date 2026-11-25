@@ -25,13 +25,14 @@ const FRAME_RANGE = Object.freeze({
   storm: 1_500_000,
   fire: 20_000,
   'fire perimeter': 40_000,
+  vehículo: 3_000,
 });
 const DEFAULT_RANGE = 8_000;
 /**
  * Items the camera can follow: their layers follow through the camera port
  * with a key naming the item (src/data/followed.js). A vessel is flown to.
  */
-const FOLLOWABLE = new Set(['flights', 'military', 'satellites']);
+const FOLLOWABLE = new Set(['flights', 'military', 'satellites', 'aumenta-flota']);
 
 /**
  * Connects the Context panel's entity card to the globe: a click on anything a

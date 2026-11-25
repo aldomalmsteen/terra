@@ -732,12 +732,10 @@ export function createLocalGeoJsonLayer(
    * loader's data source was. Each record's context is made here and
    * registered by the caller once the build has succeeded.
    */
-  function buildDrawn(viewer, features) {
+  function buildDrawn(viewer, features, existingSets = null) {
     const draw = drawOf(viewer);
     const rgba = cssColor(color) ?? [1, 1, 1, 1];
     const fillColor = [rgba[0], rgba[1], rgba[2], FILL_ALPHA];
-    // An optional per-feature colour (Data Library colorBy): its CSS value
-    // and RGBA, one per distinct value.
     const colors = new Map();
     const colorOf = (properties) => {
       const css =
@@ -749,18 +747,18 @@ export function createLocalGeoJsonLayer(
       return found.rgba ? found : { css: color, rgba };
     };
     const parts = localGeojsonParts(features);
-    const sets = {};
-    const built = { sets, parts: new Map(), records: [], count: parts.length };
+    const sets = existingSets ? existingSets : {};
+    const built = { sets, parts: new Map(), records: [], count: parts.length, reusedSets: Boolean(existingSets) };
     const prefix = `${setPrefix}:${++builds}`;
     try {
-      sets.fills = draw.shapes({ id: `${prefix}:fills`, show: false });
-      // Raised polygons apart: a ground fill showing or hiding changes in
-      // place only in a set of ground fills.
-      sets.raised = draw.shapes({ id: `${prefix}:raised`, show: false });
-      sets.lines = draw.lines({ id: `${prefix}:lines`, show: false });
-      sets.pins = draw.icons({ id: `${prefix}:pins`, show: false });
-      sets.stems = draw.lines({ id: `${prefix}:stems`, show: false });
-      sets.dots = draw.points({ id: `${prefix}:dots`, show: false });
+      if (!existingSets) {
+        sets.fills = draw.shapes({ id: `${prefix}:fills`, show: false });
+        sets.raised = draw.shapes({ id: `${prefix}:raised`, show: false });
+        sets.lines = draw.lines({ id: `${prefix}:lines`, show: false });
+        sets.pins = draw.icons({ id: `${prefix}:pins`, show: false });
+        sets.stems = draw.lines({ id: `${prefix}:stems`, show: false });
+        sets.dots = draw.points({ id: `${prefix}:dots`, show: false });
+      }
 
       const fills = [];
       const lines = [];
@@ -901,7 +899,7 @@ export function createLocalGeoJsonLayer(
       sets.stems.set(built.records.map(stemItem));
       sets.dots.set(built.records.map(dotItem));
     } catch (error) {
-      disposeSets(sets);
+      if (!existingSets) disposeSets(sets);
       throw error;
     }
     return built;
@@ -1093,7 +1091,7 @@ export function createLocalGeoJsonLayer(
                 signal: _loadController?.signal,
               });
               if (_destroyed) return;
-              const built = buildDrawn(viewer, features);
+              const built = buildDrawn(viewer, features, outgoing.sets);
               try {
                 registerContexts(built.records);
               } catch (error) {
@@ -1408,7 +1406,7 @@ export function createLocalGeoJsonLayer(
         // The loader drew its pins' symbols before it finished loading.
         await pinMaker.load(markerSymbols(features));
         if (!current()) return;
-        built = buildDrawn(viewer, features);
+        built = buildDrawn(viewer, features, outgoing.sets);
         registerContexts(built.records);
       } catch (error) {
         // `buildDrawn` let go of its own sets on a throw; a build whose
@@ -1481,7 +1479,7 @@ export function createLocalGeoJsonLayer(
         retainIds: new Set(built.records.map((record) => record.context.id)),
       });
       for (const set of Object.values(built.sets)) set.show = true;
-      disposeSets(outgoing.sets);
+      if (!built.reusedSets) disposeSets(outgoing.sets);
       findFrame(viewer)?.requestRender('local-geojson');
     },
 
