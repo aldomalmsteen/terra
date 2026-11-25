@@ -6,146 +6,141 @@
 // In-memory vehicle storage: id -> vehicle data
 const fleet = new Map();
 
-// Waypoints for CAMION-ALDO in Asunción (Av. Mariscal López / Villa Morra / Centro)
-const aldoWaypoints = [
-  [-57.6350, -25.2950, 45, 'Av. Mariscal López'],
-  [-57.6300, -25.2930, 48, 'Av. Mariscal López y Kubitschek'],
-  [-57.6250, -25.2910, 52, 'Av. Mariscal López y Choferes'],
-  [-57.6180, -25.2890, 55, 'Av. Mariscal López y San Martín'],
-  [-57.6100, -25.2860, 50, 'Paseo La Galería / Villa Morra'],
-  [-57.6180, -25.2890, 230, 'Retorno hacia Centro'],
-  [-57.6250, -25.2910, 230, 'Av. Mariscal López'],
-  [-57.6300, -25.2930, 230, 'Aproximación Centro Histórico'],
-  [-57.6350, -25.2950, 230, 'Costanera de Asunción'],
-];
-let aldoStep = 0;
-const aldoHistory = [];
+// Generate smooth realistic waypoints along Costanera de Asunción (~30 km/h)
+// Between -57.635, -25.285 and -57.620, -25.275 (step size ~ 25 meters)
+const demoWaypoints = [];
+const startLon = -57.6400, startLat = -25.2780;
+const endLon = -57.6200, endLat = -25.2860;
+const steps = 40; // 40 steps over 2.5 km -> ~60 meters per step
+for (let i = 0; i <= steps; i++) {
+  const t = i / steps;
+  demoWaypoints.push([
+    startLon + (endLon - startLon) * t,
+    startLat + (endLat - startLat) * t,
+    115 // heading east-southeast
+  ]);
+}
+for (let i = steps - 1; i >= 0; i--) {
+  const t = i / steps;
+  demoWaypoints.push([
+    startLon + (endLon - startLon) * t,
+    startLat + (endLat - startLat) * t,
+    295 // heading back west-northwest
+  ]);
+}
 
-// Waypoints for DEMO-CAMION-01 along Ruta PY02 (Caacupé -> Asunción)
-const demoWaypoints = [
-  [-57.1400, -25.3850, 275, 'Caacupé (Ruta PY02)'],
-  [-57.2000, -25.3780, 275, 'Bajada Cerro Caacupé'],
-  [-57.2600, -25.3700, 275, 'Ypacaraí'],
-  [-57.3200, -25.3600, 275, 'Peaje Ypacaraí'],
-  [-57.3800, -25.3500, 275, 'Itauguá'],
-  [-57.4400, -25.3450, 275, 'Capiatá'],
-  [-57.5097, -25.3408, 275, 'San Lorenzo'],
-  [-57.5800, -25.3100, 290, 'Fernando de la Mora'],
-  [-57.6433, -25.2822, 310, 'Puerto de Asunción'],
-];
 let demoStep = 0;
 const demoHistory = [];
 
-let aldoIsRealDevice = false;
-
-// Auto-advance simulated movements every 3 seconds
+// Realistic slow simulation: advances every 4 seconds (~35 km/h along Costanera)
 const simTimer = setInterval(() => {
-  // 1. Advance DEMO-CAMION-01
   demoStep = (demoStep + 1) % demoWaypoints.length;
   const dWp = demoWaypoints[demoStep];
   demoHistory.push([dWp[0], dWp[1]]);
-  if (demoHistory.length > 25) demoHistory.shift();
+  if (demoHistory.length > 20) demoHistory.shift();
 
-  fleet.set('DEMO-CAMION-01', {
-    id: 'DEMO-CAMION-01',
+  fleet.set('DEMO-FLOTA-01', {
+    id: 'DEMO-FLOTA-01',
     lat: dWp[1],
     lon: dWp[0],
-    speedKts: 32.4,
-    speedKmh: '60.0',
+    speedKts: 18.9,
+    speedKmh: '35.0',
     bearing: dWp[2],
-    altitude: 120,
-    batt: '94%',
-    chofer: 'Juan Silguero (Ruta PY02)',
-    vehiculo: 'Scania R450 · Chapa AAB 123',
-    carga: 'Granos a Puerto Villeta',
-    lugar: dWp[3],
+    altitude: 65,
+    batt: '92%',
+    chofer: 'Móvil de Demostración (Costanera)',
+    vehiculo: 'Camión Reparto · Chapa DEMO 01',
+    carga: 'Distribución Urbana',
+    lugar: 'Costanera de Asunción',
     history: [...demoHistory],
+    isSimulated: true,
     updatedAt: Date.now(),
   });
-
-  // 2. Advance CAMION-ALDO if no real phone is actively transmitting
-  const realAge = Date.now() - (fleet.get('CAMION-ALDO')?.realUpdateAt || 0);
-  if (!aldoIsRealDevice || realAge > 45000) {
-    aldoStep = (aldoStep + 1) % aldoWaypoints.length;
-    const aWp = aldoWaypoints[aldoStep];
-    aldoHistory.push([aWp[0], aWp[1]]);
-    if (aldoHistory.length > 25) aldoHistory.shift();
-
-    fleet.set('CAMION-ALDO', {
-      id: 'CAMION-ALDO',
-      lat: aWp[1],
-      lon: aWp[0],
-      speedKts: 22.0,
-      speedKmh: '42.0',
-      bearing: aWp[2],
-      altitude: 95,
-      batt: '88%',
-      chofer: 'Aldo (Móvil en Ruta)',
-      vehiculo: 'Camioneta Flota · Chapa ALD 001',
-      carga: 'Supervisión de Carga',
-      lugar: aWp[3],
-      history: [...aldoHistory],
-      updatedAt: Date.now(),
-    });
-  }
-}, 3000);
+}, 4000);
 simTimer.unref();
+
+function parseParams(queryString, bodyString) {
+  const params = new URLSearchParams(queryString || '');
+  if (bodyString) {
+    try {
+      // Try JSON body
+      const json = JSON.parse(bodyString);
+      for (const [k, v] of Object.entries(json)) {
+        if (!params.has(k)) params.set(k, String(v));
+      }
+    } catch {
+      // Try form urlencoded
+      const bodyParams = new URLSearchParams(bodyString);
+      for (const [k, v] of bodyParams.entries()) {
+        if (!params.has(k)) params.set(k, v);
+      }
+    }
+  }
+  return params;
+}
 
 export function fleetProxy() {
   function install(middlewares) {
     // 1. Traccar Client Endpoint: accepts /api/traccar (GET or POST)
     middlewares.use('/api/traccar', (req, res) => {
-      try {
-        const url = new URL(req.url, 'http://localhost');
-        const params = url.searchParams;
+      let bodyData = '';
+      req.on('data', (chunk) => {
+        bodyData += chunk;
+      });
 
-        let id = params.get('id') || params.get('deviceid');
-        let lat = parseFloat(params.get('lat') || params.get('latitude'));
-        let lon = parseFloat(params.get('lon') || params.get('longitude'));
-        let speed = parseFloat(params.get('speed') || '0');
-        let bearing = parseFloat(params.get('bearing') || params.get('heading') || '0');
-        let altitude = parseFloat(params.get('altitude') || '0');
-        let batt = params.get('batt') || params.get('battery');
+      req.on('end', () => {
+        try {
+          const url = new URL(req.url, 'http://localhost');
+          const params = parseParams(url.search, bodyData);
 
-        if (id && Number.isFinite(lat) && Number.isFinite(lon)) {
-          const speedKmh = (speed * 1.852).toFixed(1);
-          if (id === 'CAMION-ALDO' || id.toLowerCase().includes('aldo')) {
-            aldoIsRealDevice = true;
+          let id = params.get('id') || params.get('deviceid');
+          let lat = parseFloat(params.get('lat') || params.get('latitude'));
+          let lon = parseFloat(params.get('lon') || params.get('longitude'));
+          let speed = parseFloat(params.get('speed') || '0');
+          let bearing = parseFloat(params.get('bearing') || params.get('heading') || '0');
+          let altitude = parseFloat(params.get('altitude') || '0');
+          let batt = params.get('batt') || params.get('battery');
+
+          if (id && Number.isFinite(lat) && Number.isFinite(lon)) {
+            const speedKmh = (speed * 1.852).toFixed(1);
+            console.log(`[TRACCAR GPS] Recibido de: ${id} | Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)} | Vel: ${speedKmh} km/h | Bat: ${batt || 'N/A'}`);
+
+            const existing = fleet.get(String(id));
+            const history = existing?.history ? [...existing.history] : [];
+            history.push([lon, lat]);
+            if (history.length > 50) history.shift();
+
+            fleet.set(String(id), {
+              id: String(id),
+              lat,
+              lon,
+              speedKts: speed,
+              speedKmh,
+              bearing: Math.round(bearing),
+              altitude: Math.round(altitude),
+              batt: batt ? `${Math.round(parseFloat(batt))}%` : '100%',
+              chofer: 'Conductor Asignado',
+              vehiculo: `Móvil ${id}`,
+              carga: 'En Operación',
+              lugar: 'GPS en Vivo (Teléfono)',
+              history,
+              isSimulated: false,
+              realUpdateAt: Date.now(),
+              updatedAt: Date.now(),
+            });
           }
 
-          const existing = fleet.get(String(id));
-          const history = existing?.history ? [...existing.history] : [];
-          history.push([lon, lat]);
-          if (history.length > 40) history.shift();
-
-          fleet.set(String(id), {
-            id: String(id),
-            lat,
-            lon,
-            speedKts: speed,
-            speedKmh,
-            bearing: Math.round(bearing),
-            altitude: Math.round(altitude),
-            batt: batt ? `${Math.round(parseFloat(batt))}%` : '100%',
-            chofer: 'Conductor Asignado',
-            vehiculo: `Móvil ${id}`,
-            carga: 'En Operación',
-            lugar: 'GPS en Vivo (Teléfono)',
-            history,
-            realUpdateAt: Date.now(),
-            updatedAt: Date.now(),
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+            'Access-Control-Allow-Origin': '*',
           });
+          res.end('OK');
+        } catch (err) {
+          console.error('[TRACCAR ERROR]:', err);
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('Bad Request');
         }
-
-        res.writeHead(200, {
-          'Content-Type': 'text/plain',
-          'Access-Control-Allow-Origin': '*',
-        });
-        res.end('OK');
-      } catch (err) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.end('Bad Request');
-      }
+      });
     });
 
     // 2. Live Fleet GeoJSON Feed: /api/fleet
@@ -155,6 +150,7 @@ export function fleetProxy() {
 
       for (const [id, v] of fleet.entries()) {
         const ageSec = Math.round((now - v.updatedAt) / 1000);
+        // Retain vehicles seen in the last 24 hours
         if (ageSec > 86400) continue;
 
         const lastSeen = ageSec < 5 ? 'En vivo ahora' : ageSec < 60 ? `Hace ${ageSec} s` : `Hace ${Math.round(ageSec / 60)} min`;
