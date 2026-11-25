@@ -1091,7 +1091,7 @@ export function createLocalGeoJsonLayer(
                 signal: _loadController?.signal,
               });
               if (_destroyed) return;
-              const built = buildDrawn(viewer, features, outgoing.sets);
+              const built = buildDrawn(viewer, features);
               try {
                 registerContexts(built.records);
               } catch (error) {
